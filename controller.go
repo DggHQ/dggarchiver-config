@@ -67,6 +67,10 @@ func (controller *Controller) loadK8sConfig() {
 
 func (controller *Controller) initialize() {
 	// Docker and K8s
+	if controller.WorkerImage == "" {
+		log.Fatalf("Please set the controller:worker_image config variable and restart the service")
+	}
+
 	if controller.Docker.Enabled && controller.K8s.Enabled {
 		log.Fatalf("Please only enable one container orchestration backend")
 	}

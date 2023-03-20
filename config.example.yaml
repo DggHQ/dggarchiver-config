@@ -23,7 +23,7 @@ notifier:
   verbose: no
 
 controller:
-  worker_image: ghcr.io/dgghq/dggarchiver-worker:main 
+  worker_image: ghcr.io/dgghq/dggarchiver-worker:main
   docker:
     enabled: yes
     network: dggarchiver-network

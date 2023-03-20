@@ -53,11 +53,11 @@ func (cfg *Config) Load(service string) {
 	if cfg.NATS.Host == "" {
 		log.Fatalf("Please set the nats:host config variable and restart the service")
 	}
-
 	// NATS Topic Name
 	if cfg.NATS.Topic == "" {
 		log.Fatalf("Please set the nats:topic config variable and restart the service")
 	}
+	cfg.loadNats()
 
 	log.Debugf("Config loaded successfully")
 }
