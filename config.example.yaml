@@ -1,0 +1,53 @@
+notifier:
+  platforms:
+    youtube:
+      enabled: yes
+      google_credentials: client_secret.json
+      channel: UCSJ4gkVC6NrvII8umztf0Ow
+      scraper_refresh: 5
+      api_refresh: 0
+      healthcheck: https://hc-ping.com/your-uuid-here
+    rumble:
+      enabled: yes
+      channel: Destiny
+      scraper_refresh: 5
+      healthcheck: https://hc-ping.com/your-uuid-here
+    kick:
+      enabled: yes
+      channel: destiny
+      scraper_refresh: 5
+      healthcheck: https://hc-ping.com/your-uuid-here
+  plugins:
+    enabled: no
+    path: ./notifier.lua
+  verbose: no
+
+controller:
+  docker:
+    enabled: yes
+    network: dggarchiver-network
+  k8s:
+    enabled: no
+    namespace: dgghq
+    cpu_limit: 150m
+    memory_limit: 50Mi
+  plugins:
+    enabled: no
+    path: ./controller.lua
+  verbose: no
+
+uploader:
+  lbry:
+    uri: https://example.com/
+    author: example
+    channel_name: example
+  sqlite: 
+    uri: example.sqlite
+  plugins:
+    enabled: no
+    path: ./uploader.lua
+  verbose: no
+
+nats:
+  host: localhost
+  topic: archiver
