@@ -1,4 +1,4 @@
-module github.com/dgghq/dggarchiver-config
+module github.com/DggHQ/dggarchiver-config
 
 go 1.20
 
