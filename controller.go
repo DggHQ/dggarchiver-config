@@ -10,6 +10,7 @@ import (
 
 type DockerConfig struct {
 	Enabled      bool   `yaml:"enabled"`
+	AutoRemove   bool   `yaml:"autoremove"`
 	Network      string `yaml:"network"`
 	DockerSocket *docker.Client
 }
