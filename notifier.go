@@ -2,9 +2,11 @@ package config
 
 import (
 	"context"
+	"errors"
 	"os"
 	"path/filepath"
 	"reflect"
+	"sort"
 
 	log "github.com/DggHQ/dggarchiver-logger"
 	"golang.org/x/oauth2/google"
@@ -14,6 +16,7 @@ import (
 
 type Kick struct {
 	Enabled        bool
+	Priority       int    `yaml:"restream_priority"`
 	Channel        string `yaml:"channel"`
 	HealthCheck    string `yaml:"healthcheck"`
 	ScraperRefresh int    `yaml:"scraper_refresh"`
@@ -21,6 +24,7 @@ type Kick struct {
 
 type Rumble struct {
 	Enabled        bool
+	Priority       int    `yaml:"restream_priority"`
 	Channel        string `yaml:"channel"`
 	HealthCheck    string `yaml:"healthcheck"`
 	ScraperRefresh int    `yaml:"scraper_refresh"`
@@ -28,6 +32,7 @@ type Rumble struct {
 
 type YouTube struct {
 	Enabled        bool
+	Priority       int    `yaml:"restream_priority"`
 	Channel        string `yaml:"channel"`
 	HealthCheck    string `yaml:"healthcheck"`
 	ScraperRefresh int    `yaml:"scraper_refresh"`
@@ -46,10 +51,10 @@ type Notifier struct {
 	Plugins PluginConfig `yaml:"plugins"`
 }
 
-func (notififer *Notifier) checkPlatforms() bool {
+func (notifier *Notifier) validatePlatforms() bool {
 	var enabledPlatforms int
-	platformsValue := reflect.ValueOf(notififer.Platforms)
-	platformsFields := reflect.VisibleFields(reflect.TypeOf(notififer.Platforms))
+	platformsValue := reflect.ValueOf(notifier.Platforms)
+	platformsFields := reflect.VisibleFields(reflect.TypeOf(notifier.Platforms))
 	for _, field := range platformsFields {
 		if platformsValue.FieldByName(field.Name).FieldByName("Enabled").Bool() {
 			enabledPlatforms++
@@ -58,9 +63,41 @@ func (notififer *Notifier) checkPlatforms() bool {
 	return enabledPlatforms > 0
 }
 
+func (notifier *Notifier) validatePriority() error {
+	var platformPriority []int
+	var numOfEnabledPlatforms int
+	platformsValue := reflect.ValueOf(notifier.Platforms)
+	platformsFields := reflect.VisibleFields(reflect.TypeOf(notifier.Platforms))
+	for _, field := range platformsFields {
+		if platformsValue.FieldByName(field.Name).FieldByName("Enabled").Bool() {
+			numOfEnabledPlatforms++
+			if platformsValue.FieldByName(field.Name).FieldByName("Priority").Int() > 0 {
+				platformPriority = append(platformPriority, int(platformsValue.FieldByName(field.Name).FieldByName("Priority").Int()))
+			}
+		}
+	}
+	if sumArray(platformPriority) == 0 {
+		return nil
+	}
+	sort.Ints(platformPriority)
+	if len(platformPriority) != numOfEnabledPlatforms {
+		return errors.New("Please check if the priority has been set for every enabled platform")
+	}
+	for i := 0; i < numOfEnabledPlatforms; i++ {
+		if platformPriority[i] != i+1 {
+			return errors.New("Please check if priority for every enabled platform is a unique number from 1 to <num of enabled platforms>")
+		}
+	}
+	return nil
+}
+
 func (notifier *Notifier) initialize() {
-	if !notifier.checkPlatforms() {
+	if !notifier.validatePlatforms() {
 		log.Fatalf("Please enable at least one platform and restart the service")
+	}
+
+	if err := notifier.validatePriority(); err != nil {
+		log.Fatalf(err.Error())
 	}
 
 	// YouTube
