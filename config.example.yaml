@@ -27,6 +27,9 @@ notifier:
 
 controller:
   worker_image: ghcr.io/dgghq/dggarchiver-worker:main
+  # optional field, worker will default to yt-dlp by default
+  # can be set to either 'yt-dlp' or 'N_m3u8DL-RE' 
+  # kick_downloader: N_m3u8DL-RE
   docker:
     enabled: yes
     network: dggarchiver-network

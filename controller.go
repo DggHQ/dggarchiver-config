@@ -26,11 +26,12 @@ type K8sConfig struct {
 }
 
 type Controller struct {
-	Verbose     bool
-	WorkerImage string       `yaml:"worker_image"`
-	Docker      DockerConfig `yaml:"docker"`
-	K8s         K8sConfig    `yaml:"k8s"`
-	Plugins     PluginConfig `yaml:"plugins"`
+	Verbose        bool
+	WorkerImage    string       `yaml:"worker_image"`
+	KickDownloader string       `yaml:"kick_downloader"`
+	Docker         DockerConfig `yaml:"docker"`
+	K8s            K8sConfig    `yaml:"k8s"`
+	Plugins        PluginConfig `yaml:"plugins"`
 }
 
 func (controller *Controller) loadDocker() {
