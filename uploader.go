@@ -1,17 +1,16 @@
 package config
 
 import (
-	"database/sql"
-
-	_ "modernc.org/sqlite"
+	"github.com/glebarez/sqlite"
+	"gorm.io/gorm"
 
 	log "github.com/DggHQ/dggarchiver-logger"
+	dggarchivermodel "github.com/DggHQ/dggarchiver-model"
 )
 
 type SQLiteConfig struct {
-	URI             string `yaml:"uri"`
-	DB              *sql.DB
-	InsertStatement *sql.Stmt
+	URI string `yaml:"uri"`
+	DB  *gorm.DB
 }
 
 type LBRYConfig struct {
@@ -56,18 +55,10 @@ func (uploader *Uploader) initialize() {
 func (uploader *Uploader) loadSQLite() {
 	var err error
 
-	uploader.SQLite.DB, err = sql.Open("sqlite", uploader.SQLite.URI)
+	uploader.SQLite.DB, err = gorm.Open(sqlite.Open(uploader.SQLite.URI), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Wasn't able to open the SQLite DB: %s", err)
 	}
 
-	_, err = uploader.SQLite.DB.Exec("CREATE TABLE IF NOT EXISTS uploaded_vods (id text, pubtime text, title text, starttime text, endtime text, ogthumbnail text, thumbnail text, thumbnailpath text, path text, duration integer, claim text, lbry_name text, lbry_normalized_name text, lbry_permanent_url text);")
-	if err != nil {
-		log.Fatalf("Wasn't able to create the SQLite table: %s", err)
-	}
-
-	uploader.SQLite.InsertStatement, err = uploader.SQLite.DB.Prepare("INSERT INTO uploaded_vods (id, pubtime, title, starttime, endtime, ogthumbnail, thumbnail, thumbnailpath, path, duration, claim, lbry_name, lbry_normalized_name, lbry_permanent_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);")
-	if err != nil {
-		log.Fatalf("Wasn't able to prepare the insert statement: %s", err)
-	}
+	uploader.SQLite.DB.AutoMigrate(&dggarchivermodel.UploadedVOD{})
 }
