@@ -16,6 +16,7 @@ import (
 
 type Kick struct {
 	Enabled        bool
+	Downloader     string `yaml:"downloader"`
 	Priority       int    `yaml:"restream_priority"`
 	Channel        string `yaml:"channel"`
 	HealthCheck    string `yaml:"healthcheck"`
@@ -24,6 +25,7 @@ type Kick struct {
 
 type Rumble struct {
 	Enabled        bool
+	Downloader     string `yaml:"downloader"`
 	Priority       int    `yaml:"restream_priority"`
 	Channel        string `yaml:"channel"`
 	HealthCheck    string `yaml:"healthcheck"`
@@ -32,6 +34,7 @@ type Rumble struct {
 
 type YouTube struct {
 	Enabled        bool
+	Downloader     string `yaml:"downloader"`
 	Priority       int    `yaml:"restream_priority"`
 	Channel        string `yaml:"channel"`
 	HealthCheck    string `yaml:"healthcheck"`
@@ -111,6 +114,9 @@ func (notifier *Notifier) initialize() {
 		if notifier.Platforms.YouTube.ScraperRefresh == 0 && notifier.Platforms.YouTube.APIRefresh == 0 {
 			log.Fatalf("Please set the notifier:platform:youtube:scraper_refresh or the notifier:platform:youtube:api_refresh config variable and restart the service")
 		}
+		if notifier.Platforms.YouTube.Downloader == "" {
+			notifier.Platforms.YouTube.Downloader = "yt-dlp"
+		}
 		notifier.createGoogleClients()
 	}
 
@@ -122,6 +128,9 @@ func (notifier *Notifier) initialize() {
 		if notifier.Platforms.Rumble.ScraperRefresh == 0 {
 			log.Fatalf("Please set the notifier:platform:rumble:scraper_refresh config variable and restart the service")
 		}
+		if notifier.Platforms.Rumble.Downloader == "" {
+			notifier.Platforms.Rumble.Downloader = "yt-dlp"
+		}
 	}
 
 	// Kick
@@ -131,6 +140,9 @@ func (notifier *Notifier) initialize() {
 		}
 		if notifier.Platforms.Kick.ScraperRefresh == 0 {
 			log.Fatalf("Please set the notifier:platform:kick:scraper_refresh config variable and restart the service")
+		}
+		if notifier.Platforms.Kick.Downloader == "" {
+			notifier.Platforms.Kick.Downloader = "yt-dlp"
 		}
 	}
 

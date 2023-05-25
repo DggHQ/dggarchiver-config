@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/DggHQ/dggarchiver-logger v0.0.0-20230224190431-3025eee98c2d
-	github.com/DggHQ/dggarchiver-model v0.0.0-20230416112616-a554a6b78cdd
+	github.com/DggHQ/dggarchiver-model v0.0.0-20230525000132-7fa749218fac
 	github.com/docker/docker v23.0.1+incompatible
 	github.com/glebarez/sqlite v1.8.0
 	github.com/joho/godotenv v1.5.1

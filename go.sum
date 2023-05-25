@@ -13,6 +13,8 @@ github.com/DggHQ/dggarchiver-model v0.0.0-20230320220233-6daeed879b52 h1:7pb8/xC
 github.com/DggHQ/dggarchiver-model v0.0.0-20230320220233-6daeed879b52/go.mod h1:KPXeH8tl5G8xxCz2LdBq5dO1gfSrehCeDMtiCr8MFQg=
 github.com/DggHQ/dggarchiver-model v0.0.0-20230416112616-a554a6b78cdd h1:eAwcy6mbs2wz7KrWx3YeDssJeYSxX6GU4XTr4OFDYCQ=
 github.com/DggHQ/dggarchiver-model v0.0.0-20230416112616-a554a6b78cdd/go.mod h1:KPXeH8tl5G8xxCz2LdBq5dO1gfSrehCeDMtiCr8MFQg=
+github.com/DggHQ/dggarchiver-model v0.0.0-20230525000132-7fa749218fac h1:6HqVSJj+dA6slKyeCrB3Z+6a4RlcgIPTayl7azlckXg=
+github.com/DggHQ/dggarchiver-model v0.0.0-20230525000132-7fa749218fac/go.mod h1:KPXeH8tl5G8xxCz2LdBq5dO1gfSrehCeDMtiCr8MFQg=
 github.com/Microsoft/go-winio v0.6.0 h1:slsWYD/zyx7lCXoZVlvQrj0hPTM1HI4+v1sIda2yDvg=
 github.com/Microsoft/go-winio v0.6.0/go.mod h1:cTAf44im0RAYeL23bpB+fzCyDH2MJiz2BO69KH/soAE=
 github.com/apex/log v1.9.0 h1:FHtw/xuaM8AgmvDDTI9fiwoAL25Sq2cxojnZICUU8l0=
