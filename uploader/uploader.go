@@ -1,9 +1,14 @@
-package config
+package uploader
 
 import (
+	"os"
+
 	"github.com/glebarez/sqlite"
+	"github.com/joho/godotenv"
+	"gopkg.in/yaml.v2"
 	"gorm.io/gorm"
 
+	"github.com/DggHQ/dggarchiver-config/misc"
 	log "github.com/DggHQ/dggarchiver-logger"
 	dggarchivermodel "github.com/DggHQ/dggarchiver-model"
 )
@@ -21,9 +26,49 @@ type LBRYConfig struct {
 
 type Uploader struct {
 	Verbose bool
-	SQLite  SQLiteConfig `yaml:"sqlite"`
-	LBRY    LBRYConfig   `yaml:"lbry"`
-	Plugins PluginConfig `yaml:"plugins"`
+	SQLite  SQLiteConfig      `yaml:"sqlite"`
+	LBRY    LBRYConfig        `yaml:"lbry"`
+	Plugins misc.PluginConfig `yaml:"plugins"`
+}
+
+type Config struct {
+	Uploader Uploader        `yaml:"uploader"`
+	NATS     misc.NATSConfig `yaml:"nats"`
+}
+
+func (cfg *Config) Load() {
+	var err error
+
+	log.Debugf("Loading the service configuration")
+	godotenv.Load()
+
+	configFile := os.Getenv("CONFIG")
+	if configFile == "" {
+		configFile = "config.yaml"
+	}
+	configBytes, err := os.ReadFile(configFile)
+	if err != nil {
+		log.Fatalf("Config load error: %s", err)
+	}
+
+	err = yaml.Unmarshal(configBytes, &cfg)
+	if err != nil {
+		log.Fatalf("YAML unmarshalling error: %s", err)
+	}
+
+	cfg.Uploader.initialize()
+
+	// NATS Host Name or IP
+	if cfg.NATS.Host == "" {
+		log.Fatalf("Please set the nats:host config variable and restart the service")
+	}
+	// NATS Topic Name
+	if cfg.NATS.Topic == "" {
+		log.Fatalf("Please set the nats:topic config variable and restart the service")
+	}
+	cfg.NATS.Load()
+
+	log.Debugf("Config loaded successfully")
 }
 
 func (uploader *Uploader) initialize() {

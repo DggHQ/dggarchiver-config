@@ -1,4 +1,4 @@
-package config
+package notifier
 
 import (
 	"context"
@@ -8,10 +8,13 @@ import (
 	"reflect"
 	"sort"
 
+	"github.com/DggHQ/dggarchiver-config/misc"
 	log "github.com/DggHQ/dggarchiver-logger"
+	"github.com/joho/godotenv"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/option"
 	"google.golang.org/api/youtube/v3"
+	"gopkg.in/yaml.v2"
 )
 
 type Kick struct {
@@ -51,7 +54,47 @@ type Notifier struct {
 		Rumble  Rumble  `yaml:"rumble"`
 		Kick    Kick    `yaml:"kick"`
 	}
-	Plugins PluginConfig `yaml:"plugins"`
+	Plugins misc.PluginConfig `yaml:"plugins"`
+}
+
+type Config struct {
+	Notifier Notifier        `yaml:"notifier"`
+	NATS     misc.NATSConfig `yaml:"nats"`
+}
+
+func (cfg *Config) Load() {
+	var err error
+
+	log.Debugf("Loading the service configuration")
+	godotenv.Load()
+
+	configFile := os.Getenv("CONFIG")
+	if configFile == "" {
+		configFile = "config.yaml"
+	}
+	configBytes, err := os.ReadFile(configFile)
+	if err != nil {
+		log.Fatalf("Config load error: %s", err)
+	}
+
+	err = yaml.Unmarshal(configBytes, &cfg)
+	if err != nil {
+		log.Fatalf("YAML unmarshalling error: %s", err)
+	}
+
+	cfg.Notifier.initialize()
+
+	// NATS Host Name or IP
+	if cfg.NATS.Host == "" {
+		log.Fatalf("Please set the nats:host config variable and restart the service")
+	}
+	// NATS Topic Name
+	if cfg.NATS.Topic == "" {
+		log.Fatalf("Please set the nats:topic config variable and restart the service")
+	}
+	cfg.NATS.Load()
+
+	log.Debugf("Config loaded successfully")
 }
 
 func (notifier *Notifier) validatePlatforms() bool {
@@ -79,7 +122,7 @@ func (notifier *Notifier) validatePriority() error {
 			}
 		}
 	}
-	if sumArray(platformPriority) == 0 {
+	if misc.SumArray(platformPriority) == 0 {
 		return nil
 	}
 	sort.Ints(platformPriority)

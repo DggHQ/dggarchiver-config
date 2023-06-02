@@ -3,7 +3,7 @@ notifier:
     youtube:
       enabled: yes
       # optional field, will default to yt-dlp
-      # can be set to either 'yt-dlp' or 'ytarchive'
+      # can be set to either 'yt-dlp', 'yt-dlp/piped' or 'ytarchive'
       # downloader: ytarchive
       restream_priority: 1
       google_credentials: client_secret.json
