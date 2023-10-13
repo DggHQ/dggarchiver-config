@@ -24,6 +24,7 @@ type Kick struct {
 	Channel        string `yaml:"channel"`
 	HealthCheck    string `yaml:"healthcheck"`
 	ScraperRefresh int    `yaml:"scraper_refresh"`
+	ProxyURL       string `yaml:"proxy_url"`
 }
 
 type Rumble struct {
