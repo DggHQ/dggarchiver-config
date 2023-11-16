@@ -1,6 +1,7 @@
 package uploader
 
 import (
+	"log/slog"
 	"os"
 
 	"github.com/glebarez/sqlite"
@@ -9,7 +10,6 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/DggHQ/dggarchiver-config/misc"
-	log "github.com/DggHQ/dggarchiver-logger"
 	dggarchivermodel "github.com/DggHQ/dggarchiver-model"
 )
 
@@ -36,11 +36,16 @@ type Config struct {
 	NATS     misc.NATSConfig `yaml:"nats"`
 }
 
-func (cfg *Config) Load() {
-	var err error
+func New() *Config {
+	var (
+		err error
+		cfg = Config{}
+		lvl slog.LevelVar
+	)
 
-	log.Debugf("Loading the service configuration")
-	godotenv.Load()
+	misc.SetupSlog(&lvl)
+
+	_ = godotenv.Load()
 
 	configFile := os.Getenv("CONFIG")
 	if configFile == "" {
@@ -48,51 +53,64 @@ func (cfg *Config) Load() {
 	}
 	configBytes, err := os.ReadFile(configFile)
 	if err != nil {
-		log.Fatalf("Config load error: %s", err)
+		slog.Error("unable to load config", slog.Any("err", err))
+		os.Exit(1)
 	}
 
 	err = yaml.Unmarshal(configBytes, &cfg)
 	if err != nil {
-		log.Fatalf("YAML unmarshalling error: %s", err)
+		slog.Error("unable to unmarshall config yaml", slog.Any("err", err))
+		os.Exit(1)
+	}
+
+	if cfg.Uploader.Verbose {
+		lvl.Set(slog.LevelDebug)
 	}
 
 	cfg.Uploader.initialize()
 
 	// NATS Host Name or IP
 	if cfg.NATS.Host == "" {
-		log.Fatalf("Please set the nats:host config variable and restart the service")
+		slog.Error("config variable not set", slog.String("var", "nats:host"))
+		os.Exit(1)
 	}
 	// NATS Topic Name
 	if cfg.NATS.Topic == "" {
-		log.Fatalf("Please set the nats:topic config variable and restart the service")
+		slog.Error("config variable not set", slog.String("var", "nats:topic"))
+		os.Exit(1)
 	}
 	cfg.NATS.Load()
 
-	log.Debugf("Config loaded successfully")
+	return &cfg
 }
 
 func (uploader *Uploader) initialize() {
 	// SQLite
 	if uploader.SQLite.URI == "" {
-		log.Fatalf("Please set the SQLITE_DB config variable and restart the app")
+		slog.Error("config variable not set", slog.String("var", "uploader:sqlite:uri"))
+		os.Exit(1)
 	}
 	uploader.loadSQLite()
 
 	// LBRY
 	if uploader.LBRY.URI == "" {
-		log.Fatalf("Please set the uploader:lbry:uri config variable and restart the app")
+		slog.Error("config variable not set", slog.String("var", "uploader:lbry:uri"))
+		os.Exit(1)
 	}
 	if uploader.LBRY.Author == "" {
-		log.Fatalf("Please set the uploader:lbry:author config variable and restart the app")
+		slog.Error("config variable not set", slog.String("var", "uploader:lbry:author"))
+		os.Exit(1)
 	}
 	if uploader.LBRY.ChannelName == "" {
-		log.Fatalf("Please set the uploader:lbry:channel_name config variable and restart the app")
+		slog.Error("config variable not set", slog.String("var", "uploader:lbry:channel_name"))
+		os.Exit(1)
 	}
 
 	// Lua Plugins
 	if uploader.Plugins.Enabled {
 		if uploader.Plugins.PathToPlugin == "" {
-			log.Fatalf("Please set the uploader:plugins:path config variable and restart the service")
+			slog.Error("config variable not set", slog.String("var", "uploader:plugins:path"))
+			os.Exit(1)
 		}
 	}
 }
@@ -102,8 +120,12 @@ func (uploader *Uploader) loadSQLite() {
 
 	uploader.SQLite.DB, err = gorm.Open(sqlite.Open(uploader.SQLite.URI), &gorm.Config{})
 	if err != nil {
-		log.Fatalf("Wasn't able to open the SQLite DB: %s", err)
+		slog.Error("unable to open sqlite db", slog.Any("err", err))
+		os.Exit(1)
 	}
 
-	uploader.SQLite.DB.AutoMigrate(&dggarchivermodel.UploadedVOD{})
+	if err := uploader.SQLite.DB.AutoMigrate(&dggarchivermodel.UploadedVOD{}); err != nil {
+		slog.Error("unable to migrate sqlite db", slog.Any("err", err))
+		os.Exit(1)
+	}
 }

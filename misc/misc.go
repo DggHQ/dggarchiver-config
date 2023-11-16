@@ -1,9 +1,11 @@
 package misc
 
 import (
+	"log/slog"
+	"os"
+	"strings"
 	"time"
 
-	log "github.com/DggHQ/dggarchiver-logger"
 	"github.com/nats-io/nats.go"
 )
 
@@ -21,9 +23,9 @@ func (cfg *NATSConfig) Load() {
 	// Connect to NATS server
 	nc, err := nats.Connect(cfg.Host, nil, nats.PingInterval(20*time.Second), nats.MaxPingsOutstanding(5))
 	if err != nil {
-		log.Fatalf("Could not connect to NATS server: %s", err)
+		slog.Error("unable to connect to NATS server", slog.Any("err", err))
+		os.Exit(1)
 	}
-	log.Infof("Successfully connected to NATS server: %s", cfg.Host)
 	cfg.NatsConnection = nc
 }
 
@@ -38,4 +40,34 @@ func SumArray(array []int) int {
 		result += v
 	}
 	return result
+}
+
+func SetupSlog(lvl *slog.LevelVar) {
+	var (
+		h            slog.Handler
+		loggerSource bool
+	)
+
+	loggerType := strings.ToLower(os.Getenv("LOGGER_TYPE"))
+	if loggerSourceString, exists := os.LookupEnv("LOGGER_SOURCE"); exists {
+		lc := strings.ToLower(loggerSourceString)
+		if lc == "true" || lc == "1" {
+			loggerSource = true
+		}
+	}
+
+	switch loggerType {
+	case "json":
+		h = slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+			AddSource: loggerSource,
+			Level:     lvl,
+		})
+	default:
+		h = slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+			AddSource: loggerSource,
+			Level:     lvl,
+		})
+	}
+
+	slog.SetDefault(slog.New(h))
 }
