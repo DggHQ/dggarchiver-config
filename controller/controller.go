@@ -39,8 +39,8 @@ type Controller struct {
 }
 
 type Config struct {
-	Controller Controller      `yaml:"controller"`
-	NATS       misc.NATSConfig `yaml:"nats"`
+	*Controller `yaml:"controller"`
+	NATS        misc.NATSConfig `yaml:"nats"`
 }
 
 func New() *Config {

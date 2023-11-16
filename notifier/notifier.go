@@ -64,8 +64,8 @@ type Notifier struct {
 }
 
 type Config struct {
-	Notifier Notifier        `yaml:"notifier"`
-	NATS     misc.NATSConfig `yaml:"nats"`
+	*Notifier `yaml:"notifier"`
+	NATS      misc.NATSConfig `yaml:"nats"`
 }
 
 func New() *Config {

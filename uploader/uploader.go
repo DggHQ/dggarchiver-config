@@ -32,8 +32,8 @@ type Uploader struct {
 }
 
 type Config struct {
-	Uploader Uploader        `yaml:"uploader"`
-	NATS     misc.NATSConfig `yaml:"nats"`
+	*Uploader `yaml:"uploader"`
+	NATS      misc.NATSConfig `yaml:"nats"`
 }
 
 func New() *Config {
