@@ -23,34 +23,36 @@ var (
 )
 
 type Kick struct {
-	Enabled        bool
-	Downloader     string `yaml:"downloader"`
-	Priority       int    `yaml:"restream_priority"`
-	Channel        string `yaml:"channel"`
-	HealthCheck    string `yaml:"healthcheck"`
-	ScraperRefresh int    `yaml:"scraper_refresh"`
-	ProxyURL       string `yaml:"proxy_url"`
+	Enabled     bool
+	Method      string `yaml:"method"`
+	Downloader  string `yaml:"downloader"`
+	Priority    int    `yaml:"restream_priority"`
+	Channel     string `yaml:"channel"`
+	HealthCheck string `yaml:"healthcheck"`
+	RefreshTime int    `yaml:"refresh_time"`
+	ProxyURL    string `yaml:"proxy_url"`
 }
 
 type Rumble struct {
-	Enabled        bool
-	Downloader     string `yaml:"downloader"`
-	Priority       int    `yaml:"restream_priority"`
-	Channel        string `yaml:"channel"`
-	HealthCheck    string `yaml:"healthcheck"`
-	ScraperRefresh int    `yaml:"scraper_refresh"`
+	Enabled     bool
+	Method      string `yaml:"method"`
+	Downloader  string `yaml:"downloader"`
+	Priority    int    `yaml:"restream_priority"`
+	Channel     string `yaml:"channel"`
+	HealthCheck string `yaml:"healthcheck"`
+	RefreshTime int    `yaml:"refresh_time"`
 }
 
 type YouTube struct {
-	Enabled        bool
-	Downloader     string `yaml:"downloader"`
-	Priority       int    `yaml:"restream_priority"`
-	Channel        string `yaml:"channel"`
-	HealthCheck    string `yaml:"healthcheck"`
-	ScraperRefresh int    `yaml:"scraper_refresh"`
-	APIRefresh     int    `yaml:"api_refresh"`
-	GoogleCred     string `yaml:"google_credentials"`
-	Service        *youtube.Service
+	Enabled     bool
+	Method      string `yaml:"method"`
+	Downloader  string `yaml:"downloader"`
+	Priority    int    `yaml:"restream_priority"`
+	Channel     string `yaml:"channel"`
+	HealthCheck string `yaml:"healthcheck"`
+	RefreshTime int    `yaml:"refresh_time"`
+	GoogleCred  string `yaml:"google_credentials"`
+	Service     *youtube.Service
 }
 
 type Notifier struct {
@@ -169,25 +171,33 @@ func (notifier *Notifier) initialize() {
 
 	// YouTube
 	if notifier.Platforms.YouTube.Enabled {
-		if notifier.Platforms.YouTube.GoogleCred == "" {
-			slog.Error("config variable not set", slog.String("var", "notifier:platform:youtube:google_credentials"))
-			os.Exit(1)
-		}
 		if notifier.Platforms.YouTube.Channel == "" {
 			slog.Error("config variable not set", slog.String("var", "notifier:platform:youtube:channel"))
 			os.Exit(1)
 		}
-		if notifier.Platforms.YouTube.ScraperRefresh == 0 && notifier.Platforms.YouTube.APIRefresh == 0 {
-			slog.Error("config variable not set",
-				slog.String("var", "notifier:platform:youtube:scraper_refresh"),
-				slog.String("var", "notifier:platform:youtube:api_refresh"),
-			)
+		if notifier.Platforms.YouTube.RefreshTime == 0 {
+			slog.Error("config variable not set", slog.String("var", "notifier:platform:youtube:refresh_time"))
 			os.Exit(1)
 		}
 		if notifier.Platforms.YouTube.Downloader == "" {
 			notifier.Platforms.YouTube.Downloader = "yt-dlp"
 		}
-		notifier.createGoogleClients()
+
+		switch notifier.Platforms.YouTube.Method {
+		case "scraper":
+		case "api":
+			if notifier.Platforms.YouTube.GoogleCred == "" {
+				slog.Error("config variable not set", slog.String("var", "notifier:platform:youtube:google_credentials"))
+				os.Exit(1)
+			}
+			notifier.createGoogleClients()
+		case "":
+			slog.Error("config variable not set", slog.String("var", "notifier:platform:youtube:method"))
+			os.Exit(1)
+		default:
+			slog.Error("invalid config variable", slog.String("var", "notifier:platform:youtube:method"))
+			os.Exit(1)
+		}
 	}
 
 	// Rumble
@@ -196,13 +206,15 @@ func (notifier *Notifier) initialize() {
 			slog.Error("config variable not set", slog.String("var", "notifier:platform:rumble:channel"))
 			os.Exit(1)
 		}
-		if notifier.Platforms.Rumble.ScraperRefresh == 0 {
-			slog.Error("config variable not set", slog.String("var", "notifier:platform:rumble:scraper_refresh"))
+		if notifier.Platforms.Rumble.RefreshTime == 0 {
+			slog.Error("config variable not set", slog.String("var", "notifier:platform:rumble:refresh_time"))
 			os.Exit(1)
 		}
 		if notifier.Platforms.Rumble.Downloader == "" {
 			notifier.Platforms.Rumble.Downloader = "yt-dlp"
 		}
+
+		notifier.Platforms.Rumble.Method = "scraper"
 	}
 
 	// Kick
@@ -211,13 +223,15 @@ func (notifier *Notifier) initialize() {
 			slog.Error("config variable not set", slog.String("var", "notifier:platform:kick:channel"))
 			os.Exit(1)
 		}
-		if notifier.Platforms.Kick.ScraperRefresh == 0 {
-			slog.Error("config variable not set", slog.String("var", "notifier:platform:kick:scraper_refresh"))
+		if notifier.Platforms.Kick.RefreshTime == 0 {
+			slog.Error("config variable not set", slog.String("var", "notifier:platform:kick:refresh_time"))
 			os.Exit(1)
 		}
 		if notifier.Platforms.Kick.Downloader == "" {
 			notifier.Platforms.Kick.Downloader = "yt-dlp"
 		}
+
+		notifier.Platforms.Kick.Method = "scraper"
 	}
 
 	// Lua Plugins
