@@ -3,8 +3,7 @@ module github.com/DggHQ/dggarchiver-config
 go 1.20
 
 require (
-	github.com/DggHQ/dggarchiver-logger v0.0.0-20230224190431-3025eee98c2d
-	github.com/DggHQ/dggarchiver-model v0.0.0-20230525000132-7fa749218fac
+	github.com/DggHQ/dggarchiver-model v0.0.0-20240202175036-7f6d338794fe
 	github.com/docker/docker v24.0.2+incompatible
 	github.com/glebarez/sqlite v1.8.0
 	github.com/joho/godotenv v1.5.1
@@ -21,7 +20,6 @@ require (
 	cloud.google.com/go/compute v1.20.0 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
-	github.com/apex/log v1.9.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/docker/distribution v2.8.2+incompatible // indirect
 	github.com/docker/go-connections v0.4.0 // indirect

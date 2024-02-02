@@ -1,15 +1,14 @@
 notifier:
   platforms:
     youtube:
-      enabled: yes
+      method: "scraper"
       # optional field, will default to yt-dlp
       # can be set to either 'yt-dlp', 'yt-dlp/piped' or 'ytarchive'
       # downloader: ytarchive
       restream_priority: 1
       google_credentials: client_secret.json
       channel: UCSJ4gkVC6NrvII8umztf0Ow
-      scraper_refresh: 5
-      api_refresh: 0
+      refresh_time: 5
       healthcheck: https://hc-ping.com/your-uuid-here
     rumble:
       enabled: yes
@@ -18,7 +17,7 @@ notifier:
       # downloader: N_m3u8DL-RE
       restream_priority: 3
       channel: Destiny
-      scraper_refresh: 5
+      refresh_time: 5
       healthcheck: https://hc-ping.com/your-uuid-here
     kick:
       enabled: yes
@@ -27,7 +26,7 @@ notifier:
       # downloader: N_m3u8DL-RE
       restream_priority: 2
       channel: destiny
-      scraper_refresh: 5
+      refresh_time: 5
       healthcheck: https://hc-ping.com/your-uuid-here
   plugins:
     enabled: no
@@ -50,10 +49,16 @@ controller:
   verbose: no
 
 uploader:
-  lbry:
-    uri: https://example.com/
-    author: example
-    channel_name: example
+  platforms:
+    lbry:
+      enabled: yes
+      uri: https://example.com/
+      author: example
+      channel_name: example
+    rumble:
+      enabled: yes
+      login: example
+      password: example
   sqlite: 
     uri: example.sqlite
   plugins:

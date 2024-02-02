@@ -1,10 +1,10 @@
 package controller
 
 import (
+	"log/slog"
 	"os"
 
 	"github.com/DggHQ/dggarchiver-config/misc"
-	log "github.com/DggHQ/dggarchiver-logger"
 	docker "github.com/docker/docker/client"
 	"github.com/joho/godotenv"
 	"gopkg.in/yaml.v2"
@@ -39,15 +39,20 @@ type Controller struct {
 }
 
 type Config struct {
-	Controller Controller      `yaml:"controller"`
-	NATS       misc.NATSConfig `yaml:"nats"`
+	*Controller `yaml:"controller"`
+	NATS        misc.NATSConfig `yaml:"nats"`
 }
 
-func (cfg *Config) Load() {
-	var err error
+func New() *Config {
+	var (
+		err error
+		cfg = Config{}
+		lvl slog.LevelVar
+	)
 
-	log.Debugf("Loading the service configuration")
-	godotenv.Load()
+	misc.SetupSlog(&lvl)
+
+	_ = godotenv.Load()
 
 	configFile := os.Getenv("CONFIG")
 	if configFile == "" {
@@ -55,27 +60,35 @@ func (cfg *Config) Load() {
 	}
 	configBytes, err := os.ReadFile(configFile)
 	if err != nil {
-		log.Fatalf("Config load error: %s", err)
+		slog.Error("unable to load config", slog.Any("err", err))
+		os.Exit(1)
 	}
 
 	err = yaml.Unmarshal(configBytes, &cfg)
 	if err != nil {
-		log.Fatalf("YAML unmarshalling error: %s", err)
+		slog.Error("unable to unmarshall config yaml", slog.Any("err", err))
+		os.Exit(1)
+	}
+
+	if cfg.Controller.Verbose {
+		lvl.Set(slog.LevelDebug)
 	}
 
 	cfg.Controller.initialize()
 
 	// NATS Host Name or IP
 	if cfg.NATS.Host == "" {
-		log.Fatalf("Please set the nats:host config variable and restart the service")
+		slog.Error("config variable not set", slog.String("var", "nats:host"))
+		os.Exit(1)
 	}
 	// NATS Topic Name
 	if cfg.NATS.Topic == "" {
-		log.Fatalf("Please set the nats:topic config variable and restart the service")
+		slog.Error("config variable not set", slog.String("var", "nats:topic"))
+		os.Exit(1)
 	}
 	cfg.NATS.Load()
 
-	log.Debugf("Config loaded successfully")
+	return &cfg
 }
 
 func (controller *Controller) loadDocker() {
@@ -83,30 +96,36 @@ func (controller *Controller) loadDocker() {
 
 	controller.Docker.DockerSocket, err = docker.NewClientWithOpts(docker.FromEnv)
 	if err != nil {
-		log.Fatalf("Wasn't able to connect to the docker socket: %s", err)
+		slog.Error("unable to connect to the docker socket", slog.Any("err", err))
+		os.Exit(1)
 	}
 }
 
 func (controller *Controller) loadK8sConfig() {
-	clusterConfig, err := rest.InClusterConfig()
-
-	if cpuLimit, err := resource.ParseQuantity(controller.K8s.CPULimitConfig); err != nil {
-		log.Fatalf("Could not parse K8S_CPU_LIMIT: %s", err)
-	} else {
-		controller.K8s.CPUQuantity = cpuLimit
-	}
-	if memoryLimit, err := resource.ParseQuantity(controller.K8s.MemoryLimitConfig); err != nil {
-		log.Fatalf("Could not parse K8S_MEMORY_LIMIT: %s", err)
-	} else {
-		controller.K8s.MemoryQuantity = memoryLimit
-	}
-
+	cpuLimit, err := resource.ParseQuantity(controller.K8s.CPULimitConfig)
 	if err != nil {
-		log.Fatalf("Could not get k8s cluster config: %s", err)
+		slog.Error("unable to parse k8s cpu limit", slog.Any("err", err))
+		os.Exit(1)
 	}
+	controller.K8s.CPUQuantity = cpuLimit
+
+	memoryLimit, err := resource.ParseQuantity(controller.K8s.MemoryLimitConfig)
+	if err != nil {
+		slog.Error("unable to parse k8s memory limit", slog.Any("err", err))
+		os.Exit(1)
+	}
+	controller.K8s.MemoryQuantity = memoryLimit
+
+	clusterConfig, err := rest.InClusterConfig()
+	if err != nil {
+		slog.Error("unable to get k8s cluster config", slog.Any("err", err))
+		os.Exit(1)
+	}
+
 	clientSet, err := kubernetes.NewForConfig(clusterConfig)
 	if err != nil {
-		log.Fatalf("Could not create new client set config: %s", err)
+		slog.Error("unable to create k8s client set", slog.Any("err", err))
+		os.Exit(1)
 	}
 	controller.K8s.K8sClientSet = clientSet
 }
@@ -114,28 +133,34 @@ func (controller *Controller) loadK8sConfig() {
 func (controller *Controller) initialize() {
 	// Docker and K8s
 	if controller.WorkerImage == "" {
-		log.Fatalf("Please set the controller:worker_image config variable and restart the service")
+		slog.Error("config variable not set", slog.String("var", "controller:worker_image"))
+		os.Exit(1)
 	}
 
 	if controller.Docker.Enabled && controller.K8s.Enabled {
-		log.Fatalf("Please only enable one container orchestration backend")
+		slog.Error("too many orchestration backends enabled")
+		os.Exit(1)
 	}
 
-	switch true {
+	switch {
 	case controller.Docker.Enabled:
 		if controller.Docker.Network == "" {
-			log.Fatalf("Please set the controller:docker:network config variable and restart the service")
+			slog.Error("config variable not set", slog.String("var", "controller:docker:network"))
+			os.Exit(1)
 		}
 		controller.loadDocker()
 	case controller.K8s.Enabled:
 		if controller.K8s.Namespace == "" {
-			log.Fatalf("Please set controller:k8s:namespace config variable when using K8s as a container orcherstration backend")
+			slog.Error("config variable not set", slog.String("var", "controller:k8s:namespace"))
+			os.Exit(1)
 		}
 		if controller.K8s.CPULimitConfig == "" {
-			log.Fatalf("Please set controller:k8s:cpu_limit config variable when using K8s as a container orcherstration backend")
+			slog.Error("config variable not set", slog.String("var", "controller:k8s:cpu_limit"))
+			os.Exit(1)
 		}
 		if controller.K8s.MemoryLimitConfig == "" {
-			log.Fatalf("Please set controller:k8s:memory_limit config variable when using K8s as a container orcherstration backend")
+			slog.Error("config variable not set", slog.String("var", "controller:k8s:memory_limit"))
+			os.Exit(1)
 		}
 		controller.loadK8sConfig()
 	}
@@ -143,7 +168,8 @@ func (controller *Controller) initialize() {
 	// Lua Plugins
 	if controller.Plugins.Enabled {
 		if controller.Plugins.PathToPlugin == "" {
-			log.Fatalf("Please set the controller:plugins:path config variable and restart the service")
+			slog.Error("config variable not set", slog.String("var", "notifier:platform:youtube:google_credentials"))
+			os.Exit(1)
 		}
 	}
 }
