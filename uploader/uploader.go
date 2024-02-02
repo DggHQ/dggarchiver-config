@@ -19,15 +19,25 @@ type SQLiteConfig struct {
 }
 
 type LBRYConfig struct {
+	Enabled     bool
 	URI         string `yaml:"uri"`
 	Author      string `yaml:"author"`
 	ChannelName string `yaml:"channel_name"`
 }
 
+type RumbleConfig struct {
+	Enabled  bool
+	Login    string `yaml:"login"`
+	Password string `yaml:"password"`
+}
+
 type Uploader struct {
-	Verbose bool
+	Verbose   bool
+	Platforms struct {
+		LBRY   LBRYConfig   `yaml:"lbry"`
+		Rumble RumbleConfig `yaml:"rumble"`
+	}
 	SQLite  SQLiteConfig      `yaml:"sqlite"`
-	LBRY    LBRYConfig        `yaml:"lbry"`
 	Plugins misc.PluginConfig `yaml:"plugins"`
 }
 
@@ -92,18 +102,37 @@ func (uploader *Uploader) initialize() {
 	}
 	uploader.loadSQLite()
 
+	if !uploader.Platforms.LBRY.Enabled && !uploader.Platforms.Rumble.Enabled {
+		slog.Error("no upload platforms enabled")
+		os.Exit(1)
+	}
+
 	// LBRY
-	if uploader.LBRY.URI == "" {
-		slog.Error("config variable not set", slog.String("var", "uploader:lbry:uri"))
-		os.Exit(1)
+	if uploader.Platforms.LBRY.Enabled {
+		if uploader.Platforms.LBRY.URI == "" {
+			slog.Error("config variable not set", slog.String("var", "uploader:platforms:lbry:uri"))
+			os.Exit(1)
+		}
+		if uploader.Platforms.LBRY.Author == "" {
+			slog.Error("config variable not set", slog.String("var", "uploader:platforms:lbry:author"))
+			os.Exit(1)
+		}
+		if uploader.Platforms.LBRY.ChannelName == "" {
+			slog.Error("config variable not set", slog.String("var", "uploader:platforms:lbry:channel_name"))
+			os.Exit(1)
+		}
 	}
-	if uploader.LBRY.Author == "" {
-		slog.Error("config variable not set", slog.String("var", "uploader:lbry:author"))
-		os.Exit(1)
-	}
-	if uploader.LBRY.ChannelName == "" {
-		slog.Error("config variable not set", slog.String("var", "uploader:lbry:channel_name"))
-		os.Exit(1)
+
+	// Rumble
+	if uploader.Platforms.Rumble.Enabled {
+		if uploader.Platforms.Rumble.Login == "" {
+			slog.Error("config variable not set", slog.String("var", "uploader:platforms:rumble:login"))
+			os.Exit(1)
+		}
+		if uploader.Platforms.Rumble.Password == "" {
+			slog.Error("config variable not set", slog.String("var", "uploader:platforms:rumble:password"))
+			os.Exit(1)
+		}
 	}
 
 	// Lua Plugins
