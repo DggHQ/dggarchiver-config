@@ -23,14 +23,16 @@ var (
 )
 
 type Kick struct {
-	Enabled     bool
-	Method      string `yaml:"method"`
-	Downloader  string `yaml:"downloader"`
-	Priority    int    `yaml:"restream_priority"`
-	Channel     string `yaml:"channel"`
-	HealthCheck string `yaml:"healthcheck"`
-	RefreshTime int    `yaml:"refresh_time"`
-	ProxyURL    string `yaml:"proxy_url"`
+	Enabled       bool
+	Method        string `yaml:"method"`
+	URL           string `yaml:"url"`
+	Authorization string `yaml:"authorization"`
+	Downloader    string `yaml:"downloader"`
+	Priority      int    `yaml:"restream_priority"`
+	Channel       string `yaml:"channel"`
+	HealthCheck   string `yaml:"healthcheck"`
+	RefreshTime   int    `yaml:"refresh_time"`
+	ProxyURL      string `yaml:"proxy_url"`
 }
 
 type Rumble struct {
@@ -219,6 +221,9 @@ func (notifier *Notifier) initialize() {
 
 	// Kick
 	if notifier.Platforms.Kick.Enabled {
+		if notifier.Platforms.Kick.URL == "" {
+			notifier.Platforms.Kick.URL = "https://kick.com"
+		}
 		if notifier.Platforms.Kick.Channel == "" {
 			slog.Error("config variable not set", slog.String("var", "notifier:platform:kick:channel"))
 			os.Exit(1)
