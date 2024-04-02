@@ -37,6 +37,7 @@ type Uploader struct {
 		LBRY   LBRYConfig   `yaml:"lbry"`
 		Rumble RumbleConfig `yaml:"rumble"`
 	}
+	Filters []string          `yaml:"filters"`
 	SQLite  SQLiteConfig      `yaml:"sqlite"`
 	Plugins misc.PluginConfig `yaml:"plugins"`
 }
