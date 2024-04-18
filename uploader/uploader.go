@@ -37,7 +37,10 @@ type Uploader struct {
 		LBRY   LBRYConfig   `yaml:"lbry"`
 		Rumble RumbleConfig `yaml:"rumble"`
 	}
-	Filters []string          `yaml:"filters"`
+	Filters struct {
+		List      []string `yaml:"list"`
+		Behaviour string   `yaml:"behaviour"`
+	} `yaml:"filters"`
 	SQLite  SQLiteConfig      `yaml:"sqlite"`
 	Plugins misc.PluginConfig `yaml:"plugins"`
 }
@@ -134,6 +137,10 @@ func (uploader *Uploader) initialize() {
 			slog.Error("config variable not set", slog.String("var", "uploader:platforms:rumble:password"))
 			os.Exit(1)
 		}
+	}
+
+	if uploader.Filters.Behaviour == "" {
+		uploader.Filters.Behaviour = "skip"
 	}
 
 	// Lua Plugins
