@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/DggHQ/dggarchiver-config/misc"
+	"github.com/containrrr/shoutrrr"
 	docker "github.com/docker/docker/client"
 	"github.com/joho/godotenv"
 	"gopkg.in/yaml.v2"

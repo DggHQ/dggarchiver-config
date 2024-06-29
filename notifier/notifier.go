@@ -10,6 +10,7 @@ import (
 	"sort"
 
 	"github.com/DggHQ/dggarchiver-config/misc"
+	"github.com/containrrr/shoutrrr"
 	"github.com/joho/godotenv"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/option"
