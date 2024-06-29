@@ -29,11 +29,6 @@ func (cfg *NATSConfig) Load() {
 	cfg.NatsConnection = nc
 }
 
-type PluginConfig struct {
-	Enabled      bool   `yaml:"enabled"`
-	PathToPlugin string `yaml:"path"`
-}
-
 func SumArray(array []int) int {
 	result := 0
 	for _, v := range array {

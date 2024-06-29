@@ -41,8 +41,8 @@ type Uploader struct {
 		List      []string `yaml:"list"`
 		Behaviour string   `yaml:"behaviour"`
 	} `yaml:"filters"`
-	SQLite  SQLiteConfig      `yaml:"sqlite"`
-	Plugins misc.PluginConfig `yaml:"plugins"`
+	SQLite        SQLiteConfig `yaml:"sqlite"`
+	Notifications []string     `yaml:"notifications"`
 }
 
 type Config struct {
@@ -141,14 +141,6 @@ func (uploader *Uploader) initialize() {
 
 	if uploader.Filters.Behaviour == "" {
 		uploader.Filters.Behaviour = "skip"
-	}
-
-	// Lua Plugins
-	if uploader.Plugins.Enabled {
-		if uploader.Plugins.PathToPlugin == "" {
-			slog.Error("config variable not set", slog.String("var", "uploader:plugins:path"))
-			os.Exit(1)
-		}
 	}
 }
 

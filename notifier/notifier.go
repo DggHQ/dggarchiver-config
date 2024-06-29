@@ -64,7 +64,7 @@ type Notifier struct {
 		Rumble  Rumble  `yaml:"rumble"`
 		Kick    Kick    `yaml:"kick"`
 	}
-	Plugins misc.PluginConfig `yaml:"plugins"`
+	Notifications []string `yaml:"notifications"`
 }
 
 type Config struct {
@@ -237,14 +237,6 @@ func (notifier *Notifier) initialize() {
 		}
 
 		notifier.Platforms.Kick.Method = "scraper"
-	}
-
-	// Lua Plugins
-	if notifier.Plugins.Enabled {
-		if notifier.Plugins.PathToPlugin == "" {
-			slog.Error("config variable not set", slog.String("var", "notifier:plugins:path"))
-			os.Exit(1)
-		}
 	}
 }
 

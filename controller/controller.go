@@ -31,11 +31,11 @@ type K8sConfig struct {
 }
 
 type Controller struct {
-	Verbose     bool
-	WorkerImage string            `yaml:"worker_image"`
-	Docker      DockerConfig      `yaml:"docker"`
-	K8s         K8sConfig         `yaml:"k8s"`
-	Plugins     misc.PluginConfig `yaml:"plugins"`
+	Verbose       bool
+	WorkerImage   string       `yaml:"worker_image"`
+	Docker        DockerConfig `yaml:"docker"`
+	K8s           K8sConfig    `yaml:"k8s"`
+	Notifications []string     `yaml:"notifications"`
 }
 
 type Config struct {
@@ -163,13 +163,5 @@ func (controller *Controller) initialize() {
 			os.Exit(1)
 		}
 		controller.loadK8sConfig()
-	}
-
-	// Lua Plugins
-	if controller.Plugins.Enabled {
-		if controller.Plugins.PathToPlugin == "" {
-			slog.Error("config variable not set", slog.String("var", "notifier:platform:youtube:google_credentials"))
-			os.Exit(1)
-		}
 	}
 }
