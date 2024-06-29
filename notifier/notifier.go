@@ -64,7 +64,7 @@ type Notifier struct {
 		Rumble  Rumble  `yaml:"rumble"`
 		Kick    Kick    `yaml:"kick"`
 	}
-	Notifications []string `yaml:"notifications"`
+	Notifications misc.Notifications `yaml:"notifications"`
 }
 
 type Config struct {
@@ -237,6 +237,16 @@ func (notifier *Notifier) initialize() {
 		}
 
 		notifier.Platforms.Kick.Method = "scraper"
+	}
+
+	// Notifications
+	if notifier.Notifications.Enabled() {
+		var err error
+		notifier.Notifications.Sender, err = shoutrrr.CreateSender(notifier.Notifications.List...)
+		if err != nil {
+			slog.Error("unable to create notification sender", slog.Any("err", err))
+			os.Exit(1)
+		}
 	}
 }
 

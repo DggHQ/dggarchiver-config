@@ -32,10 +32,10 @@ type K8sConfig struct {
 
 type Controller struct {
 	Verbose       bool
-	WorkerImage   string       `yaml:"worker_image"`
-	Docker        DockerConfig `yaml:"docker"`
-	K8s           K8sConfig    `yaml:"k8s"`
-	Notifications []string     `yaml:"notifications"`
+	WorkerImage   string             `yaml:"worker_image"`
+	Docker        DockerConfig       `yaml:"docker"`
+	K8s           K8sConfig          `yaml:"k8s"`
+	Notifications misc.Notifications `yaml:"notifications"`
 }
 
 type Config struct {
@@ -163,5 +163,15 @@ func (controller *Controller) initialize() {
 			os.Exit(1)
 		}
 		controller.loadK8sConfig()
+	}
+
+	// Notifications
+	if controller.Notifications.Enabled() {
+		var err error
+		controller.Notifications.Sender, err = shoutrrr.CreateSender(controller.Notifications.List...)
+		if err != nil {
+			slog.Error("unable to create notification sender", slog.Any("err", err))
+			os.Exit(1)
+		}
 	}
 }

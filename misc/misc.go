@@ -3,9 +3,11 @@ package misc
 import (
 	"log/slog"
 	"os"
+	"slices"
 	"strings"
 	"time"
 
+	"github.com/containrrr/shoutrrr/pkg/router"
 	"github.com/nats-io/nats.go"
 )
 
@@ -27,6 +29,20 @@ func (cfg *NATSConfig) Load() {
 		os.Exit(1)
 	}
 	cfg.NatsConnection = nc
+}
+
+type Notifications struct {
+	List       []string `yaml:"list"`
+	Conditions []string `yaml:"conditions"`
+	Sender     *router.ServiceRouter
+}
+
+func (n *Notifications) Enabled() bool {
+	return len(n.List) > 0 && len(n.Conditions) > 0
+}
+
+func (n *Notifications) Condition(s string) bool {
+	return len(n.List) > 0 && len(n.Conditions) > 0 && slices.Contains(n.Conditions, s)
 }
 
 func SumArray(array []int) int {
