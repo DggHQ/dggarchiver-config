@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/DggHQ/dggarchiver-config/misc"
+	"github.com/containrrr/shoutrrr"
 	docker "github.com/docker/docker/client"
 	"github.com/joho/godotenv"
 	"gopkg.in/yaml.v2"
@@ -31,11 +32,11 @@ type K8sConfig struct {
 }
 
 type Controller struct {
-	Verbose     bool
-	WorkerImage string            `yaml:"worker_image"`
-	Docker      DockerConfig      `yaml:"docker"`
-	K8s         K8sConfig         `yaml:"k8s"`
-	Plugins     misc.PluginConfig `yaml:"plugins"`
+	Verbose       bool
+	WorkerImage   string             `yaml:"worker_image"`
+	Docker        DockerConfig       `yaml:"docker"`
+	K8s           K8sConfig          `yaml:"k8s"`
+	Notifications misc.Notifications `yaml:"notifications"`
 }
 
 type Config struct {
@@ -165,10 +166,12 @@ func (controller *Controller) initialize() {
 		controller.loadK8sConfig()
 	}
 
-	// Lua Plugins
-	if controller.Plugins.Enabled {
-		if controller.Plugins.PathToPlugin == "" {
-			slog.Error("config variable not set", slog.String("var", "notifier:platform:youtube:google_credentials"))
+	// Notifications
+	if controller.Notifications.Enabled() {
+		var err error
+		controller.Notifications.Sender, err = shoutrrr.CreateSender(controller.Notifications.List...)
+		if err != nil {
+			slog.Error("unable to create notification sender", slog.Any("err", err))
 			os.Exit(1)
 		}
 	}
