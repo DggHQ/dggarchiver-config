@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/containrrr/shoutrrr"
 	"github.com/glebarez/sqlite"
 	"github.com/joho/godotenv"
 	"gopkg.in/yaml.v2"
@@ -49,8 +50,8 @@ type Uploader struct {
 		List      []string `yaml:"list"`
 		Behaviour string   `yaml:"behaviour"`
 	} `yaml:"filters"`
-	SQLite  SQLiteConfig      `yaml:"sqlite"`
-	Plugins misc.PluginConfig `yaml:"plugins"`
+	SQLite        SQLiteConfig       `yaml:"sqlite"`
+	Notifications misc.Notifications `yaml:"notifications"`
 }
 
 type Config struct {
@@ -167,10 +168,12 @@ func (uploader *Uploader) initialize() {
 		uploader.Filters.Behaviour = "skip"
 	}
 
-	// Lua Plugins
-	if uploader.Plugins.Enabled {
-		if uploader.Plugins.PathToPlugin == "" {
-			slog.Error("config variable not set", slog.String("var", "uploader:plugins:path"))
+	// Notifications
+	if uploader.Notifications.Enabled() {
+		var err error
+		uploader.Notifications.Sender, err = shoutrrr.CreateSender(uploader.Notifications.List...)
+		if err != nil {
+			slog.Error("unable to create notification sender", slog.Any("err", err))
 			os.Exit(1)
 		}
 	}

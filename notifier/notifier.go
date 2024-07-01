@@ -10,6 +10,7 @@ import (
 	"sort"
 
 	"github.com/DggHQ/dggarchiver-config/misc"
+	"github.com/containrrr/shoutrrr"
 	"github.com/joho/godotenv"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/option"
@@ -64,7 +65,7 @@ type Notifier struct {
 		Rumble  Rumble  `yaml:"rumble"`
 		Kick    Kick    `yaml:"kick"`
 	}
-	Plugins misc.PluginConfig `yaml:"plugins"`
+	Notifications misc.Notifications `yaml:"notifications"`
 }
 
 type Config struct {
@@ -239,10 +240,12 @@ func (notifier *Notifier) initialize() {
 		notifier.Platforms.Kick.Method = "scraper"
 	}
 
-	// Lua Plugins
-	if notifier.Plugins.Enabled {
-		if notifier.Plugins.PathToPlugin == "" {
-			slog.Error("config variable not set", slog.String("var", "notifier:plugins:path"))
+	// Notifications
+	if notifier.Notifications.Enabled() {
+		var err error
+		notifier.Notifications.Sender, err = shoutrrr.CreateSender(notifier.Notifications.List...)
+		if err != nil {
+			slog.Error("unable to create notification sender", slog.Any("err", err))
 			os.Exit(1)
 		}
 	}
