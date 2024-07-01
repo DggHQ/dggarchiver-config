@@ -3,7 +3,7 @@ module github.com/DggHQ/dggarchiver-config
 go 1.20
 
 require (
-	github.com/DggHQ/dggarchiver-model v0.0.0-20240202175036-7f6d338794fe
+	github.com/DggHQ/dggarchiver-model v0.0.0-20240701043726-064087a74466
 	github.com/docker/docker v24.0.2+incompatible
 	github.com/glebarez/sqlite v1.8.0
 	github.com/joho/godotenv v1.5.1
@@ -11,7 +11,7 @@ require (
 	golang.org/x/oauth2 v0.8.0
 	google.golang.org/api v0.125.0
 	gopkg.in/yaml.v2 v2.4.0
-	gorm.io/gorm v1.25.1
+	gorm.io/gorm v1.25.10
 	k8s.io/apimachinery v0.27.2
 	k8s.io/client-go v0.27.2
 )
