@@ -171,7 +171,7 @@ func (uploader *Uploader) initialize() {
 	// Notifications
 	if uploader.Notifications.Enabled() {
 		var err error
-		uploader.Notifications.Sender, err = shoutrrr.CreateSender(uploader.Notifications.List...)
+		uploader.Notifications.Sender, err = shoutrrr.CreateSender(uploader.Notifications.Services...)
 		if err != nil {
 			slog.Error("unable to create notification sender", slog.Any("err", err))
 			os.Exit(1)
