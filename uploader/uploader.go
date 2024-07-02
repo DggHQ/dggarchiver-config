@@ -46,10 +46,7 @@ type Uploader struct {
 		Odysee OdyseeConfig `yaml:"odysee"`
 		Rumble RumbleConfig `yaml:"rumble"`
 	}
-	Filters struct {
-		List      []string `yaml:"list"`
-		Behaviour string   `yaml:"behaviour"`
-	} `yaml:"filters"`
+	Filters       map[string]string  `yaml:"filters"`
 	SQLite        SQLiteConfig       `yaml:"sqlite"`
 	Notifications misc.Notifications `yaml:"notifications"`
 }
@@ -164,8 +161,10 @@ func (uploader *Uploader) initialize() {
 		}
 	}
 
-	if uploader.Filters.Behaviour == "" {
-		uploader.Filters.Behaviour = "skip"
+	for k, v := range uploader.Filters {
+		if v == "" {
+			uploader.Filters[k] = "skip"
+		}
 	}
 
 	// Notifications
