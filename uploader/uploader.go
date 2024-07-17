@@ -19,6 +19,13 @@ type SQLiteConfig struct {
 	DB  *gorm.DB
 }
 
+type OdyseeConfig struct {
+	Enabled   bool
+	Email     string `yaml:"email"`
+	Password  string `yaml:"password"`
+	ChannelID string `yaml:"channel_id"`
+}
+
 type LBRYConfig struct {
 	Enabled     bool
 	URI         string `yaml:"uri"`
@@ -36,12 +43,10 @@ type Uploader struct {
 	Verbose   bool
 	Platforms struct {
 		LBRY   LBRYConfig   `yaml:"lbry"`
+		Odysee OdyseeConfig `yaml:"odysee"`
 		Rumble RumbleConfig `yaml:"rumble"`
 	}
-	Filters struct {
-		List      []string `yaml:"list"`
-		Behaviour string   `yaml:"behaviour"`
-	} `yaml:"filters"`
+	Filters       map[string]string  `yaml:"filters"`
 	SQLite        SQLiteConfig       `yaml:"sqlite"`
 	Notifications misc.Notifications `yaml:"notifications"`
 }
@@ -107,7 +112,7 @@ func (uploader *Uploader) initialize() {
 	}
 	uploader.loadSQLite()
 
-	if !uploader.Platforms.LBRY.Enabled && !uploader.Platforms.Rumble.Enabled {
+	if !uploader.Platforms.LBRY.Enabled && !uploader.Platforms.Rumble.Enabled && !uploader.Platforms.Odysee.Enabled {
 		slog.Error("no upload platforms enabled")
 		os.Exit(1)
 	}
@@ -128,6 +133,22 @@ func (uploader *Uploader) initialize() {
 		}
 	}
 
+	// Odysee
+	if uploader.Platforms.Odysee.Enabled {
+		if uploader.Platforms.Odysee.Email == "" {
+			slog.Error("config variable not set", slog.String("var", "uploader:platforms:odysee:email"))
+			os.Exit(1)
+		}
+		if uploader.Platforms.Odysee.Password == "" {
+			slog.Error("config variable not set", slog.String("var", "uploader:platforms:odysee:password"))
+			os.Exit(1)
+		}
+		if uploader.Platforms.Odysee.ChannelID == "" {
+			slog.Error("config variable not set", slog.String("var", "uploader:platforms:odysee:channel_id"))
+			os.Exit(1)
+		}
+	}
+
 	// Rumble
 	if uploader.Platforms.Rumble.Enabled {
 		if uploader.Platforms.Rumble.Login == "" {
@@ -140,14 +161,16 @@ func (uploader *Uploader) initialize() {
 		}
 	}
 
-	if uploader.Filters.Behaviour == "" {
-		uploader.Filters.Behaviour = "skip"
+	for k, v := range uploader.Filters {
+		if v == "" {
+			uploader.Filters[k] = "skip"
+		}
 	}
 
 	// Notifications
 	if uploader.Notifications.Enabled() {
 		var err error
-		uploader.Notifications.Sender, err = shoutrrr.CreateSender(uploader.Notifications.List...)
+		uploader.Notifications.Sender, err = shoutrrr.CreateSender(uploader.Notifications.Services...)
 		if err != nil {
 			slog.Error("unable to create notification sender", slog.Any("err", err))
 			os.Exit(1)

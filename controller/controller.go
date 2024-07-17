@@ -169,7 +169,7 @@ func (controller *Controller) initialize() {
 	// Notifications
 	if controller.Notifications.Enabled() {
 		var err error
-		controller.Notifications.Sender, err = shoutrrr.CreateSender(controller.Notifications.List...)
+		controller.Notifications.Sender, err = shoutrrr.CreateSender(controller.Notifications.Services...)
 		if err != nil {
 			slog.Error("unable to create notification sender", slog.Any("err", err))
 			os.Exit(1)

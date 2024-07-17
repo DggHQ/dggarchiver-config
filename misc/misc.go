@@ -32,17 +32,17 @@ func (cfg *NATSConfig) Load() {
 }
 
 type Notifications struct {
-	List       []string `yaml:"list"`
+	Services   []string `yaml:"services"`
 	Conditions []string `yaml:"conditions"`
 	Sender     *router.ServiceRouter
 }
 
 func (n *Notifications) Enabled() bool {
-	return len(n.List) > 0 && len(n.Conditions) > 0
+	return len(n.Services) > 0 && len(n.Conditions) > 0
 }
 
 func (n *Notifications) Condition(s string) bool {
-	return len(n.List) > 0 && len(n.Conditions) > 0 && slices.Contains(n.Conditions, s)
+	return len(n.Services) > 0 && len(n.Conditions) > 0 && slices.Contains(n.Conditions, s)
 }
 
 func SumArray(array []int) int {

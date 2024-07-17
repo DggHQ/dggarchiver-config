@@ -243,7 +243,7 @@ func (notifier *Notifier) initialize() {
 	// Notifications
 	if notifier.Notifications.Enabled() {
 		var err error
-		notifier.Notifications.Sender, err = shoutrrr.CreateSender(notifier.Notifications.List...)
+		notifier.Notifications.Sender, err = shoutrrr.CreateSender(notifier.Notifications.Services...)
 		if err != nil {
 			slog.Error("unable to create notification sender", slog.Any("err", err))
 			os.Exit(1)

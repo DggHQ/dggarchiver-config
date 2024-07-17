@@ -28,9 +28,11 @@ notifier:
       channel: destiny
       refresh_time: 5
       healthcheck: https://hc-ping.com/your-uuid-here
-  plugins:
-    enabled: no
-    path: ./notifier.lua
+  notifications:
+    services:
+      - example://example:example/
+    conditions:
+      - example
   verbose: no
 
 controller:
@@ -43,9 +45,11 @@ controller:
     namespace: dgghq
     cpu_limit: 150m
     memory_limit: 50Mi
-  plugins:
-    enabled: no
-    path: ./controller.lua
+  notifications:
+    services:
+      - example://example:example/
+    conditions:
+      - example
   verbose: no
 
 uploader:
@@ -59,11 +63,20 @@ uploader:
       enabled: yes
       login: example
       password: example
+    odysee:
+      enabled: yes
+      email: example@example.com
+      password: example
+      channel_id: example
   sqlite: 
     uri: example.sqlite
-  plugins:
-    enabled: no
-    path: ./uploader.lua
+  filters:
+    '(?i)example': skip
+  notifications:
+    services:
+      - example://example:example/
+    conditions:
+      - example
   verbose: no
 
 nats:
