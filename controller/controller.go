@@ -34,6 +34,7 @@ type K8sConfig struct {
 type Controller struct {
 	Verbose       bool
 	WorkerImage   string             `yaml:"worker_image"`
+	ProxyURL      string             `yaml:"proxy_url"`
 	Docker        DockerConfig       `yaml:"docker"`
 	K8s           K8sConfig          `yaml:"k8s"`
 	Notifications misc.Notifications `yaml:"notifications"`
