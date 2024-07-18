@@ -44,6 +44,7 @@ type Rumble struct {
 	Channel     string `yaml:"channel"`
 	HealthCheck string `yaml:"healthcheck"`
 	RefreshTime int    `yaml:"refresh_time"`
+	ProxyURL    string `yaml:"proxy_url"`
 }
 
 type YouTube struct {
@@ -55,6 +56,7 @@ type YouTube struct {
 	HealthCheck string `yaml:"healthcheck"`
 	RefreshTime int    `yaml:"refresh_time"`
 	GoogleCred  string `yaml:"google_credentials"`
+	ProxyURL    string `yaml:"proxy_url"`
 	Service     *youtube.Service
 }
 
