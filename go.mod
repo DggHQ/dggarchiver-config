@@ -3,7 +3,7 @@ module github.com/DggHQ/dggarchiver-config
 go 1.20
 
 require (
-	github.com/DggHQ/dggarchiver-model v0.0.0-20240718093510-3b74301ce748
+	github.com/DggHQ/dggarchiver-model v0.0.0-20240718103025-03ef5d760d1e
 	github.com/containrrr/shoutrrr v0.8.0
 	github.com/docker/docker v24.0.2+incompatible
 	github.com/glebarez/sqlite v1.8.0
