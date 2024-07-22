@@ -12,6 +12,8 @@ github.com/DggHQ/dggarchiver-model v0.0.0-20240718093510-3b74301ce748 h1:dbDk+EN
 github.com/DggHQ/dggarchiver-model v0.0.0-20240718093510-3b74301ce748/go.mod h1:p1i5pIUtDhsoYfL7ViIdojIK6tAsJKxhbH55OOmBlmo=
 github.com/DggHQ/dggarchiver-model v0.0.0-20240718103025-03ef5d760d1e h1:2xDeuaeL2JP4Sv2LSPohK9JQmCRpSTuvbKpIsu3KrOM=
 github.com/DggHQ/dggarchiver-model v0.0.0-20240718103025-03ef5d760d1e/go.mod h1:p1i5pIUtDhsoYfL7ViIdojIK6tAsJKxhbH55OOmBlmo=
+github.com/DggHQ/dggarchiver-model v0.0.0-20240722035243-bcb11567a7a8 h1:7/Exgx2+W7zeTC504lKlNKH2j2wr0sH7bKG1yihzTGQ=
+github.com/DggHQ/dggarchiver-model v0.0.0-20240722035243-bcb11567a7a8/go.mod h1:p1i5pIUtDhsoYfL7ViIdojIK6tAsJKxhbH55OOmBlmo=
 github.com/Microsoft/go-winio v0.6.1 h1:9/kr64B9VUZrLm5YYwbGtUJnMgqWVOdUAXu6Migciow=
 github.com/Microsoft/go-winio v0.6.1/go.mod h1:LRdKpFKfdobln8UmuiYcKPot9D2v6svN5+sAH+4kjUM=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=

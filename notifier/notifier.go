@@ -24,46 +24,49 @@ var (
 )
 
 type Kick struct {
-	Enabled       bool
-	Method        string   `yaml:"method"`
-	URL           string   `yaml:"url"`
-	Authorization string   `yaml:"authorization"`
-	Downloader    string   `yaml:"downloader"`
-	Quality       string   `yaml:"quality"`
-	Tags          []string `yaml:"tags"`
-	Priority      int      `yaml:"restream_priority"`
-	Channel       string   `yaml:"channel"`
-	HealthCheck   string   `yaml:"healthcheck"`
-	RefreshTime   int      `yaml:"refresh_time"`
-	ProxyURL      string   `yaml:"proxy_url"`
+	Enabled        bool
+	Method         string   `yaml:"method"`
+	URL            string   `yaml:"url"`
+	Authorization  string   `yaml:"authorization"`
+	Downloader     string   `yaml:"downloader"`
+	Quality        string   `yaml:"quality"`
+	Tags           []string `yaml:"tags"`
+	Priority       int      `yaml:"restream_priority"`
+	Channel        string   `yaml:"channel"`
+	HealthCheck    string   `yaml:"healthcheck"`
+	RefreshTime    int      `yaml:"refresh_time"`
+	ProxyURL       string   `yaml:"proxy_url"`
+	WorkerProxyURL string   `yaml:"worker_proxy_url"`
 }
 
 type Rumble struct {
-	Enabled     bool
-	Method      string   `yaml:"method"`
-	Downloader  string   `yaml:"downloader"`
-	Quality     string   `yaml:"quality"`
-	Tags        []string `yaml:"tags"`
-	Priority    int      `yaml:"restream_priority"`
-	Channel     string   `yaml:"channel"`
-	HealthCheck string   `yaml:"healthcheck"`
-	RefreshTime int      `yaml:"refresh_time"`
-	ProxyURL    string   `yaml:"proxy_url"`
+	Enabled        bool
+	Method         string   `yaml:"method"`
+	Downloader     string   `yaml:"downloader"`
+	Quality        string   `yaml:"quality"`
+	Tags           []string `yaml:"tags"`
+	Priority       int      `yaml:"restream_priority"`
+	Channel        string   `yaml:"channel"`
+	HealthCheck    string   `yaml:"healthcheck"`
+	RefreshTime    int      `yaml:"refresh_time"`
+	ProxyURL       string   `yaml:"proxy_url"`
+	WorkerProxyURL string   `yaml:"worker_proxy_url"`
 }
 
 type YouTube struct {
-	Enabled     bool
-	Method      string   `yaml:"method"`
-	Downloader  string   `yaml:"downloader"`
-	Quality     string   `yaml:"quality"`
-	Tags        []string `yaml:"tags"`
-	Priority    int      `yaml:"restream_priority"`
-	Channel     string   `yaml:"channel"`
-	HealthCheck string   `yaml:"healthcheck"`
-	RefreshTime int      `yaml:"refresh_time"`
-	GoogleCred  string   `yaml:"google_credentials"`
-	ProxyURL    string   `yaml:"proxy_url"`
-	Service     *youtube.Service
+	Enabled        bool
+	Method         string   `yaml:"method"`
+	Downloader     string   `yaml:"downloader"`
+	Quality        string   `yaml:"quality"`
+	Tags           []string `yaml:"tags"`
+	Priority       int      `yaml:"restream_priority"`
+	Channel        string   `yaml:"channel"`
+	HealthCheck    string   `yaml:"healthcheck"`
+	RefreshTime    int      `yaml:"refresh_time"`
+	GoogleCred     string   `yaml:"google_credentials"`
+	ProxyURL       string   `yaml:"proxy_url"`
+	WorkerProxyURL string   `yaml:"worker_proxy_url"`
+	Service        *youtube.Service
 }
 
 type Notifier struct {
