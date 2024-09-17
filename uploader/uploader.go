@@ -46,9 +46,10 @@ type Uploader struct {
 		Odysee OdyseeConfig `yaml:"odysee"`
 		Rumble RumbleConfig `yaml:"rumble"`
 	}
-	Filters       map[string]string  `yaml:"filters"`
-	SQLite        SQLiteConfig       `yaml:"sqlite"`
-	Notifications misc.Notifications `yaml:"notifications"`
+	ParallelUploads bool               `yaml:"parallel_uploads"`
+	Filters         map[string]string  `yaml:"filters"`
+	SQLite          SQLiteConfig       `yaml:"sqlite"`
+	Notifications   misc.Notifications `yaml:"notifications"`
 }
 
 type Config struct {
