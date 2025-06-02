@@ -23,6 +23,20 @@ var (
 	ErrPriorityNotUnique = errors.New("some priority is not a unique number from 1 to <num of enabled platforms>")
 )
 
+type TikTok struct {
+	Enabled        bool
+	Method         string   `yaml:"method"`
+	Downloader     string   `yaml:"downloader"`
+	Quality        string   `yaml:"quality"`
+	Tags           []string `yaml:"tags"`
+	Priority       int      `yaml:"restream_priority"`
+	Channel        string   `yaml:"channel"`
+	HealthCheck    string   `yaml:"healthcheck"`
+	RefreshTime    int      `yaml:"refresh_time"`
+	ProxyURL       string   `yaml:"proxy_url"`
+	WorkerProxyURL string   `yaml:"worker_proxy_url"`
+}
+
 type Kick struct {
 	Enabled        bool
 	Method         string   `yaml:"method"`
@@ -75,6 +89,7 @@ type Notifier struct {
 		YouTube YouTube `yaml:"youtube"`
 		Rumble  Rumble  `yaml:"rumble"`
 		Kick    Kick    `yaml:"kick"`
+		TikTok  TikTok  `yaml:"tiktok"`
 	}
 	Notifications misc.Notifications `yaml:"notifications"`
 }
@@ -261,6 +276,27 @@ func (notifier *Notifier) initialize() {
 		}
 
 		notifier.Platforms.Kick.Method = "scraper"
+	}
+
+	// TikTok
+	if notifier.Platforms.TikTok.Enabled {
+		if notifier.Platforms.TikTok.Channel == "" {
+			slog.Error("config variable not set", slog.String("var", "notifier:platform:tiktok:channel"))
+			os.Exit(1)
+		}
+		if notifier.Platforms.TikTok.RefreshTime == 0 {
+			slog.Error("config variable not set", slog.String("var", "notifier:platform:tiktok:refresh_time"))
+			os.Exit(1)
+		}
+		if notifier.Platforms.TikTok.Downloader == "" {
+			notifier.Platforms.Kick.Downloader = "streamlink"
+		}
+		if notifier.Platforms.TikTok.Quality == "" {
+			slog.Error("config variable not set", slog.String("var", "notifier:platform:tiktok:quality"))
+			os.Exit(1)
+		}
+
+		notifier.Platforms.TikTok.Method = "scraper"
 	}
 
 	// Notifications
