@@ -24,40 +24,49 @@ var (
 )
 
 type Kick struct {
-	Enabled       bool
-	Method        string `yaml:"method"`
-	URL           string `yaml:"url"`
-	Authorization string `yaml:"authorization"`
-	Downloader    string `yaml:"downloader"`
-	Priority      int    `yaml:"restream_priority"`
-	Channel       string `yaml:"channel"`
-	HealthCheck   string `yaml:"healthcheck"`
-	RefreshTime   int    `yaml:"refresh_time"`
-	ProxyURL      string `yaml:"proxy_url"`
+	Enabled        bool
+	Method         string   `yaml:"method"`
+	URL            string   `yaml:"url"`
+	Authorization  string   `yaml:"authorization"`
+	Downloader     string   `yaml:"downloader"`
+	Quality        string   `yaml:"quality"`
+	Tags           []string `yaml:"tags"`
+	Priority       int      `yaml:"restream_priority"`
+	Channel        string   `yaml:"channel"`
+	HealthCheck    string   `yaml:"healthcheck"`
+	RefreshTime    int      `yaml:"refresh_time"`
+	ProxyURL       string   `yaml:"proxy_url"`
+	WorkerProxyURL string   `yaml:"worker_proxy_url"`
 }
 
 type Rumble struct {
-	Enabled     bool
-	Method      string `yaml:"method"`
-	Downloader  string `yaml:"downloader"`
-	Priority    int    `yaml:"restream_priority"`
-	Channel     string `yaml:"channel"`
-	HealthCheck string `yaml:"healthcheck"`
-	RefreshTime int    `yaml:"refresh_time"`
-	ProxyURL    string `yaml:"proxy_url"`
+	Enabled        bool
+	Method         string   `yaml:"method"`
+	Downloader     string   `yaml:"downloader"`
+	Quality        string   `yaml:"quality"`
+	Tags           []string `yaml:"tags"`
+	Priority       int      `yaml:"restream_priority"`
+	Channel        string   `yaml:"channel"`
+	HealthCheck    string   `yaml:"healthcheck"`
+	RefreshTime    int      `yaml:"refresh_time"`
+	ProxyURL       string   `yaml:"proxy_url"`
+	WorkerProxyURL string   `yaml:"worker_proxy_url"`
 }
 
 type YouTube struct {
-	Enabled     bool
-	Method      string `yaml:"method"`
-	Downloader  string `yaml:"downloader"`
-	Priority    int    `yaml:"restream_priority"`
-	Channel     string `yaml:"channel"`
-	HealthCheck string `yaml:"healthcheck"`
-	RefreshTime int    `yaml:"refresh_time"`
-	GoogleCred  string `yaml:"google_credentials"`
-	ProxyURL    string `yaml:"proxy_url"`
-	Service     *youtube.Service
+	Enabled        bool
+	Method         string   `yaml:"method"`
+	Downloader     string   `yaml:"downloader"`
+	Quality        string   `yaml:"quality"`
+	Tags           []string `yaml:"tags"`
+	Priority       int      `yaml:"restream_priority"`
+	Channel        string   `yaml:"channel"`
+	HealthCheck    string   `yaml:"healthcheck"`
+	RefreshTime    int      `yaml:"refresh_time"`
+	GoogleCred     string   `yaml:"google_credentials"`
+	ProxyURL       string   `yaml:"proxy_url"`
+	WorkerProxyURL string   `yaml:"worker_proxy_url"`
+	Service        *youtube.Service
 }
 
 type Notifier struct {
@@ -187,6 +196,10 @@ func (notifier *Notifier) initialize() {
 		if notifier.Platforms.YouTube.Downloader == "" {
 			notifier.Platforms.YouTube.Downloader = "yt-dlp"
 		}
+		if notifier.Platforms.YouTube.Quality == "" {
+			slog.Error("config variable not set", slog.String("var", "notifier:platform:youtube:quality"))
+			os.Exit(1)
+		}
 
 		switch notifier.Platforms.YouTube.Method {
 		case "scraper":
@@ -218,6 +231,10 @@ func (notifier *Notifier) initialize() {
 		if notifier.Platforms.Rumble.Downloader == "" {
 			notifier.Platforms.Rumble.Downloader = "yt-dlp"
 		}
+		if notifier.Platforms.Rumble.Quality == "" {
+			slog.Error("config variable not set", slog.String("var", "notifier:platform:rumble:quality"))
+			os.Exit(1)
+		}
 
 		notifier.Platforms.Rumble.Method = "scraper"
 	}
@@ -237,6 +254,10 @@ func (notifier *Notifier) initialize() {
 		}
 		if notifier.Platforms.Kick.Downloader == "" {
 			notifier.Platforms.Kick.Downloader = "yt-dlp"
+		}
+		if notifier.Platforms.Kick.Quality == "" {
+			slog.Error("config variable not set", slog.String("var", "notifier:platform:kick:quality"))
+			os.Exit(1)
 		}
 
 		notifier.Platforms.Kick.Method = "scraper"

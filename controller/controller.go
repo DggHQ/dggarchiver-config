@@ -15,9 +15,13 @@ import (
 )
 
 type DockerConfig struct {
-	Enabled      bool   `yaml:"enabled"`
-	AutoRemove   bool   `yaml:"autoremove"`
-	Network      string `yaml:"network"`
+	Enabled    bool   `yaml:"enabled"`
+	AutoRemove bool   `yaml:"autoremove"`
+	Network    string `yaml:"network"`
+	Mount      struct {
+		Type   string `yaml:"type"`
+		Source string `yaml:"source"`
+	} `yaml:"mount"`
 	DockerSocket *docker.Client
 }
 
@@ -34,7 +38,6 @@ type K8sConfig struct {
 type Controller struct {
 	Verbose       bool
 	WorkerImage   string             `yaml:"worker_image"`
-	ProxyURL      string             `yaml:"proxy_url"`
 	Docker        DockerConfig       `yaml:"docker"`
 	K8s           K8sConfig          `yaml:"k8s"`
 	Notifications misc.Notifications `yaml:"notifications"`
@@ -148,6 +151,16 @@ func (controller *Controller) initialize() {
 	case controller.Docker.Enabled:
 		if controller.Docker.Network == "" {
 			slog.Error("config variable not set", slog.String("var", "controller:docker:network"))
+			os.Exit(1)
+		}
+		switch controller.Docker.Mount.Type {
+		case "volume", "bind":
+		default:
+			slog.Error("invalid config variable", slog.String("var", "controller:docker:mount:type"))
+			os.Exit(1)
+		}
+		if controller.Docker.Mount.Source == "" {
+			slog.Error("config variable not set", slog.String("var", "controller:docker:mount:source"))
 			os.Exit(1)
 		}
 		controller.loadDocker()
