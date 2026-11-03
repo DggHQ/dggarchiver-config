@@ -27,12 +27,13 @@ type DockerConfig struct {
 
 type K8sConfig struct {
 	Enabled           bool   `yaml:"enabled"`
-	Namespace         string `yaml:"namespace"`
-	CPULimitConfig    string `yaml:"cpu_limit"`
-	MemoryLimitConfig string `yaml:"memory_limit"`
-	K8sClientSet      *kubernetes.Clientset
-	CPUQuantity       resource.Quantity
-	MemoryQuantity    resource.Quantity
+	Namespace          string `yaml:"namespace"`
+	CPULimitConfig     string `yaml:"cpu_limit"`
+	MemoryLimitConfig  string `yaml:"memory_limit"`
+	ServiceAccountName string `yaml:"service_account_name"`
+	K8sClientSet       *kubernetes.Clientset
+	CPUQuantity        resource.Quantity
+	MemoryQuantity     resource.Quantity
 }
 
 type Controller struct {
