@@ -113,11 +113,6 @@ func (uploader *Uploader) initialize() {
 	}
 	uploader.loadSQLite()
 
-	if !uploader.Platforms.LBRY.Enabled && !uploader.Platforms.Rumble.Enabled && !uploader.Platforms.Odysee.Enabled {
-		slog.Error("no upload platforms enabled")
-		os.Exit(1)
-	}
-
 	// LBRY
 	if uploader.Platforms.LBRY.Enabled {
 		if uploader.Platforms.LBRY.URI == "" {
